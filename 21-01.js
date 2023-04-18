@@ -21,8 +21,14 @@ app.get('/', (req, res, next) => {
     fs.readFile('./Telephones.json', (e, data) => {
             if (e) console.log('Ошибка: ', e);
             else {
-                let os = JSON.parse(data);
-                res.render('index', {names: os})
+                console.log(data.length)
+                if(data.length==0){
+                    res.render('index')
+                }
+                else {
+                    let os = JSON.parse(data);
+                    res.render('index', {names: os})
+                }
             }
         }
     );
@@ -32,8 +38,13 @@ app.get('/Add', (req, res, next) => {
             if (e) {
                 console.log('Ошибка: ', e);
             } else {
-                let os = JSON.parse(data);
-                res.render('Add', {names: os, logicif: true})
+                if(data.length==0){
+                    res.render('Add',{logicif:true})
+                }
+                else {
+                    let os = JSON.parse(data);
+                    res.render('Add', {names: os, logicif: true})
+                }
             }
         }
     );
@@ -57,10 +68,12 @@ app.post('/Add', function (req, res) {
     fs.readFile('./Telephones.json', (e, data) => {
         if (e) console.log('Ошибка: ', e);
         else {
-            let os = JSON.parse(data);
-            os.forEach(element => {
-                result2 += `{ "FIO":"${element.FIO}","Telephone":"${element.Telephone}"},`;
-            });
+            if(data.length!=0) {
+                let os = JSON.parse(data);
+                os.forEach(element => {
+                    result2 += `{ "FIO":"${element.FIO}","Telephone":"${element.Telephone}"},`;
+                });
+            }
         }
         result2 += `{"FIO":"${FIO}","Telephone":"${result[1]}"}]`;
         fs.writeFile('./Telephones.json', result2, (e) => {
@@ -70,8 +83,10 @@ app.post('/Add', function (req, res) {
         fs.readFile('./Telephones.json', (e, data) => {
             if (e) console.log('Ошибка: ', e);
             else {
-                let os = JSON.parse(data);
-                res.render('index', {names: os})
+                if(data.length!=0) {
+                    let os = JSON.parse(data);
+                    res.render('index', {names: os})
+                }
             }
         });
     });
@@ -123,6 +138,7 @@ app.post('/Update', function (req, res) {
             if (e) throw e;
             console.log("Запись успешно завершена");
         });
+        console.log('dsadsa')
         fs.readFile('./Telephones.json', (e, data) => {
             if (e) console.log('Ошибка: ', e);
             else {
@@ -135,7 +151,6 @@ app.post('/Update', function (req, res) {
 app.post('/Delete', function (req, res) {
     let body = req.body.String;
     let result2 = '[';
-    console.log(body);
     let result = (body.split(" ")).filter(function (el) {
         return el != "";
     });
@@ -158,17 +173,36 @@ app.post('/Delete', function (req, res) {
                 }
             });
         }
-        result2 = result2.substring(0, result2.length - 1);
-        result2 += ']';
-        fs.writeFile('./Telephones.json', result2, (e) => {
-            if (e) throw e;
-            console.log("Удаление успешно завершено");
-        });
+        console.log('result2')
+        console.log(result2)
+        if(result2.length!=1) {
+            result2 = result2.substring(0, result2.length - 1);
+            result2 += ']';
+        }
+        if(result2.length!=1) {
+            fs.writeFile('./Telephones.json', result2, (e) => {
+                if (e) throw e;
+                console.log("Удаление успешно завершено");
+            });
+        }
+        else{
+            fs.writeFile('./Telephones.json', "", (e) => {
+                if (e) throw e;
+                console.log("Удаление успешно завершено");
+            });
+        }
+        console.log('dsadsa')//крч я эту хуйню добавил чтоб файл успевало считывать лучше замени на слип пусть костыль такой будет
         fs.readFile('./Telephones.json', (e, data) => {
             if (e) console.log('Ошибка: ', e);
             else {
-                let os = JSON.parse(data);
-                res.render('index', {names: os})
+                console.log(data)
+                if(data.length!=0) {
+                    let os = JSON.parse(data);
+                    res.render('index', {names: os})
+                }
+                else{
+                    res.render('index')
+                }
             }
         });
     });
